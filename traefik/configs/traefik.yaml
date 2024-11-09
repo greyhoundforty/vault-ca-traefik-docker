@@ -1,0 +1,62 @@
+api:
+  dashboard: true
+  debug: true
+
+entryPoints:
+  http:
+    address: ":80"
+    forwardedHeaders:
+      trustedIPs:
+        - 127.0.0.1/32
+        - 192.168.0.0/16
+        - 172.16.0.0/12
+  https:
+    address: ":443"
+    http:
+      tls: {}
+    forwardedHeaders:
+      trustedIPs:
+        - 127.0.0.1/32
+        - 192.168.0.0/16
+        - 172.16.0.0/12
+
+providers:
+  docker:
+    endpoint: "unix:///var/run/docker.sock"
+    exposedByDefault: false
+    defaultRule: "Host(`{{ index .Labels \"com.docker.compose.service\"}}.andromeda.local`)"
+    network: proxy
+  file:
+    directory: "/configs"
+    watch: true
+
+certificatesResolvers:
+  http:
+    acme:
+      email: user@example.com
+      storage: acme.json
+      httpChallenge:
+        entryPoint: http
+  letsencrypt:
+    acme:
+      email: user@example.com
+      storage: acme.json
+      dnsChallenge:
+        provider: digitalocean
+        resolvers:
+          - "1.1.1.1:53"
+          - "1.0.0.1:53"
+
+serversTransport:
+    insecureSkipVerify: false
+
+accessLog:
+  filePath: "/logs/access.log"
+  fields:
+    headers:
+      names:
+        User-Agent: keep
+
+log:
+  filePath: "/logs/traefik.log"
+  level: INFO
