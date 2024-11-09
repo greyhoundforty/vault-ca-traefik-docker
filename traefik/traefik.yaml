@@ -24,28 +24,27 @@ providers:
   docker:
     endpoint: "unix:///var/run/docker.sock"
     exposedByDefault: false
-    defaultRule: "Host(`{{ index .Labels \"com.docker.compose.service\"}}.andromeda.local`)"
+    defaultRule: "Host(`{{ index .Labels \"com.docker.compose.service\"}}.homelab.cantina`)"
     network: proxy
   file:
     directory: "/configs"
     watch: true
 
 certificatesResolvers:
-  http:
-    acme:
-      email: user@example.com
-      storage: acme.json
-      httpChallenge:
-        entryPoint: http
-  letsencrypt:
-    acme:
-      email: user@example.com
-      storage: acme.json
-      dnsChallenge:
-        provider: digitalocean
-        resolvers:
-          - "1.1.1.1:53"
-          - "1.0.0.1:53"
+  vault:
+    vault:
+      server: "http://vault:8200"
+      path: "pki_int/issue/homelab-dot-cantina"
+      role: "homelab-dot-cantina"
+#   letsencrypt:
+#     acme:
+#       email: user@example.com
+#       storage: acme.json
+#       dnsChallenge:
+#         provider: digitalocean
+#         resolvers:
+#           - "1.1.1.1:53"
+#           - "1.0.0.1:53"
 
 serversTransport:
     insecureSkipVerify: false
